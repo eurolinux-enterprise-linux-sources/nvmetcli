@@ -148,6 +148,8 @@ class UISubsystemsNode(UINode):
 class UISubsystemNode(UINode):
     ui_desc_attr = {
         'allow_any_host': ('string', 'Allow access by any host if set to 1'),
+        'serial': ('string', 'Export serial number to hosts'),
+        'version': ('string', 'Export version number to hosts'),
     }
 
     def __init__(self, parent, cfnode):
@@ -198,6 +200,7 @@ class UINamespaceNode(UINode):
     ui_desc_device = {
         'path': ('string', 'Backing device path.'),
         'nguid': ('string', 'Namspace Global Unique Identifier.'),
+        'uuid': ('string', 'Namespace Universally Unique Identifier.'),
     }
 
     def __init__(self, parent, cfnode):

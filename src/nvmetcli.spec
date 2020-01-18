@@ -2,7 +2,7 @@ Name:           nvmetcli
 License:        Apache License 2.0
 Group:          Applications/System
 Summary:        Command line interface for the kernel NVMe nvmet
-Version: 0.4
+Version: 0.5
 Release:        1%{?dist}
 URL:		http://git.infradead.org/users/hch/nvmetcli.git
 Source:         nvmetcli-%{version}.tar.gz
@@ -53,5 +53,5 @@ rm -rf %{buildroot}
 %doc COPYING README
 
 %changelog
-* Fri Apr 21 2017 Christoph Hellwig <hch@lst.de> 0.4-1
-  - Generated from git commit 5078207f0294ebeec5fc6e963eefa2de7d2ce3da.
+* Thu Aug 10 2017 Christoph Hellwig <hch@lst.de> 0.5-1
+  - Generated from git commit 389993977d5a0bfc366c8683a05553043740dfa9.

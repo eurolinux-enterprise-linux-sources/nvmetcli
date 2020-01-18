@@ -1,6 +1,6 @@
-nvmetcli (0.4) unstable; urgency=low
+nvmetcli (0.5) unstable; urgency=low
 
-  * Generated from git commit 5078207f0294ebeec5fc6e963eefa2de7d2ce3da.
+  * Generated from git commit 389993977d5a0bfc366c8683a05553043740dfa9.
 
- -- Christoph Hellwig <hch@lst.de>  Fri, 21 Apr 2017 08:31:31 +0200
+ -- Christoph Hellwig <hch@lst.de>  Thu, 10 Aug 2017 14:46:02 +0200
 

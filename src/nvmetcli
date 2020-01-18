@@ -24,7 +24,11 @@ import os
 import sys
 import configshell_fb as configshell
 import nvmet as nvme
+from string import hexdigits
+import uuid
 
+def ngiud_set(nguid):
+    return any(c in hexdigits and c != '0' for c in nguid)
 
 class UINode(configshell.node.ConfigNode):
     def __init__(self, name, parent=None, cfnode=None, shell=None):
@@ -160,6 +164,13 @@ class UISubsystemNode(UINode):
         UINamespacesNode(self)
         UIAllowedHostsNode(self)
 
+    def summary(self):
+        info = []
+        info.append("version=" + self.cfnode.get_attr("attr","version"))
+        info.append("allow_any=" + self.cfnode.get_attr("attr","allow_any_host"))
+        info.append("serial=" + self.cfnode.get_attr("attr","serial"))
+        return (", ".join(info), True)
+
 
 class UINamespacesNode(UINode):
     def __init__(self, parent):
@@ -246,6 +257,19 @@ class UINamespaceNode(UINode):
             except Exception as e:
                 raise configshell.ExecutionError(
                     "The Namespace could not be disabled.")
+
+    def summary(self):
+        info = []
+        info.append("path=" + self.cfnode.get_attr("device", "path"))
+        ns_uuid = self.cfnode.get_attr("device", "uuid")
+        if uuid.UUID(ns_uuid).int != 0:
+            info.append("uuid=" + str(ns_uuid))
+        ns_nguid = self.cfnode.get_attr("device", "nguid")
+        if ngiud_set(ns_nguid):
+            info.append("nguid=" + ns_nguid)
+        info.append("enabled" if self.cfnode.get_enable() else "disabled")
+        ns_enabled = self.cfnode.get_enable()
+        return (", ".join(info), True if ns_enabled == 1 else ns_enabled)
 
 
 class UIAllowedHostsNode(UINode):
@@ -356,11 +380,15 @@ class UIPortNode(UINode):
         UIPortSubsystemsNode(self)
         UIReferralsNode(self)
 
-    def status(self):
-        if self.cfnode.get_enable():
-            return "enabled"
-        return "disabled"
-
+    def summary(self):
+        info = []
+        info.append("trtype=" + self.cfnode.get_attr("addr", "trtype"))
+        info.append("traddr=" + self.cfnode.get_attr("addr", "traddr"))
+        trsvcid = self.cfnode.get_attr("addr", "trsvcid")
+        if trsvcid != "none":
+            info.append("trsvcid=%s" % trsvcid)
+        enabled = not (not self.cfnode.subsystems and not list(self.cfnode.referrals))
+        return (", ".join(info), True if enabled else 0)
 
 class UIPortSubsystemsNode(UINode):
     def __init__(self, parent):
@@ -554,6 +582,7 @@ def usage():
     print("syntax: %s save [file_to_save_to]" % sys.argv[0])
     print("        %s restore [file_to_restore_from]" % sys.argv[0])
     print("        %s clear" % sys.argv[0])
+    print("        %s ls" % sys.argv[0])
     sys.exit(-1)
 
 
@@ -577,7 +606,14 @@ def clear(unused):
     nvme.Root().clear_existing()
 
 
-funcs = dict(save=save, restore=restore, clear=clear)
+def ls(unused):
+    shell = configshell.shell.ConfigShell('~/.nvmetcli')
+    UIRootNode(shell)
+    shell.run_cmdline("ls")
+    sys.exit(0)
+
+
+funcs = dict(save=save, restore=restore, clear=clear, ls=ls)
 
 
 def main():
